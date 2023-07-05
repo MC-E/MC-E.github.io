@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Mutual Self-Attention Control">
+  <meta name="keywords" content="Stable Diffusion">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MasaCtrl: Tuning-free Mutual Self-Attention Control for Consistent
+    Image Synthesis and Editing</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script> -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="./static/js/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+
+<body>
+
+<!-- <nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a class="navbar-item" href="https://keunhong.com">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a>
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          More Research
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="https://hypernerf.github.io">
+            HyperNeRF
+          </a>
+          <a class="navbar-item" href="https://nerfies.github.io">
+            Nerfies
+          </a>
+          <a class="navbar-item" href="https://latentfusion.github.io">
+            LatentFusion
+          </a>
+          <a class="navbar-item" href="https://photoshape.github.io">
+            PhotoShape
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav> -->
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-2 publication-title">DragonDiffusion: Enabling <span style="text-decoration: underline">Drag</span>-style Manipulation <span style="text-decoration: underline">on</span> <span style="text-decoration: underline">Diffusion</span> Models
+            Image Synthesis and Editing</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=SYQoDk0AAAAJ&hl=zh-CN">Chong Mou</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://xinntao.github.io">Xintao Wang</a><sup>2</sup>,</span>
+            <span class="author-block">
+              <a href="">Jiechong Song</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=4oXBp9UAAAAJ">Ying Shan</a><sup>2</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=7brFI_4AAAAJ&hl=zh-CN">Jian Zhang</a><sup>1&#9993</sup>,
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>School of Electronic and Computer Engineering, Shenzhen Graduate School, Peking University,</span>
+            <span class="author-block"><sup>2</sup>ARC Lab, Tencent PCG</span>
+          </div>
+
+          <!-- <div class="column has-text-centered">
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2304.08465"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://github.com/TencentARC/MasaCtrl"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Github</span>
+                  </a>
+              </span>
+          </div> -->
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="./static/assets/teaser.png" alt="teaser" width="100%">
+      <h2 class="subtitle has-text-centered">
+        <span class="masactrl">DragonDiffusion</span> enables various editing modes for the generated or real images, including object moving, object resizing, object appearance replacement, and content dragging. It is worth noting that all editing and content preservation signals come from the image itself, and the model does not require fine-tuning or additional modules.
+      </h2>
+    </div>
+  </div>
+</section>
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container"> 
+      <h2 class="title is-6", style="text-align: center;"> Some Editing Results</h2>
+      <div id="results-carousel" class="carousel results-carousel">
+        <div class="item item-steve">
+          <img src="static/assets/results/move1.png">
+        </div>
+        <div class="item item-chair-tp">
+          <img src="static/assets/results/move2.png">
+        </div>
+        <div class="item item-chair-tp">
+          <img src="static/assets/results/move3.png">
+        </div>
+        <div class="item">
+          <img src="static/assets/results/app1.png">
+        </div>
+        <div class="item item-shiba">
+          <img src="static/assets/results/app2.png">
+        </div>
+        <div class="item item-fullbody">
+          <img src="static/assets/results/drag1.png">
+        </div>
+        <div class="item item-blueshirt">
+          <img src="static/assets/results/drag2.png">
+        </div>
+        <div class="item item-mask">
+          <img src="static/assets/results/drag3.png">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-body">
+    <!-- video demo -->
+    <div class="container">
+      <h2 class="title is-6", style="text-align: center;"> Continuous Editing </h2>
+      <div id="results-carousel" class="carousel results-carousel">
+        <div class="item item-steve">
+          <video poster="" id="steve" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/app.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-chair-tp">
+          <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%">
+            <source src="static/videos/sun.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-chair-tp">
+          <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%">
+            <source src="static/videos/girl.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-chair-tp">
+          <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%">
+            <source src="static/videos/car.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-chair-tp">
+          <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%">
+            <source src="static/videos/mountain.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item">
+          <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%">
+            <source src="static/videos/sofa.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Despite the ability of existing large-scale text-to-image (T2I) models to generate high-quality images from detailed textual descriptions, they often lack the ability to precisely edit the generated or real images. In this paper, we propose a novel image editing method, <span style="font-weight: bold;">DragonDiffusion</span>, enabling <span style="font-weight: bold;">Drag</span>-style manipulation <span style="font-weight: bold;">on</span> <span style="font-weight: bold;">Diffusion</span> Models. Specifically, we construct classifier guidance based on the strong correspondence of intermediate features in the diffusion model. It can transform the editing signals into gradients via feature correspondence loss to modify the intermediate representation of the diffusion model. Based on this guidance strategy, we also build a multi-scale guidance to consider both semantic and geometric alignment. Moreover, a cross-branch self-attention is added to maintain the consistency between the original image and the editing result. Our method, through an efficient design, achieves various editing modes for the generated or real images, such as object moving, object resizing, object appearance replacement, and content dragging. It is worth noting that all editing and content preservation signals come from the image itself, and the model does not require fine-tuning or additional modules.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+  </div>
+</section>
+
+<!-- Methods section -->
+<Section>
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Methods</h2>
+      
+      <div class="column is-full-width">
+        
+        <div class="content has-text-justified">
+          <img src="static/assets/arch.png">
+          <p>
+            Pipeline of the proposed <span class="DragonDiffusion">DragonDiffusion</span>. Our proposed method consists of a guidance branch and a generation branch. The guidance branch provides editing and consistency guidance to the generation branch through the correspondence of intermediate features.
+          </p>
+        </div>
+      </div>
+  </div>
+</Section>
+<!-- Methods section -->
+
+
+<!-- Results -->
+<section class="section">
+  <div class="container is-max-desktop">
+  <h2 class="title is-3 has-text-centered"> Results </h2>
+      <div class="column is-full-width">
+        <h2 class="title is-4">Object Moving Results</h2>          
+        <img src="static/assets/res_move.png" width="100%">
+      </div>
+
+      <div class="column is-full-width">
+        <h2 class="title is-4">Object Appearance Replacement Results</h2>
+        <img src="static/assets/res_app.png" width="100%">
+      </div>
+
+      <div class="column is-full-width">
+        <h2 class="title is-4">Content Dragging Results</h2>
+        <img src="static/assets/res_drag.png" width="100%">
+      </div>
+  </div>
+
+    <!-- Concurrent Work. -->
+    <div class="container is-max-desktop">
+      <div class="column is-full-width">
+        <h2 class="title is-4">Related Links</h2>
+        <p>
+        [1] <a href="https://github.com/XingangPan/DragGAN">Drag Your GAN: Interactive Point-based Manipulation on the Generative Image Manifold</a>
+        </p>
+        <p>
+        [2] <a href="https://yujun-shi.github.io/projects/dragdiffusion.html">DragDiffusion: Harnessing Diffusion Models for Interactive Point-based Image Editing</a>
+        </p>
+        <p>
+        [3] <a href="https://dave.ml/selfguidance/">Diffusion Self-Guidance for Controllable Image Generation</a>
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+<!-- Results -->
+
+
+<!-- <section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@misc{cao2023masactrl,
+      title={MasaCtrl: Tuning-Free Mutual Self-Attention Control for Consistent Image Synthesis and Editing}, 
+      author={Mingdeng Cao and Xintao Wang and Zhongang Qi and Ying Shan and Xiaohu Qie and Yinqiang Zheng},
+      year={2023},
+      eprint={2304.08465},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+    }</code></pre>
+  </div>
+</section> -->
+
+
+<footer class="footer">
+  <div class="container">
+    <!-- <div class="content has-text-centered">
+      <a class="icon-link"
+         href="./static/videos/nerfies_paper.pdf">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div> -->
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is modified from the <a href="https://nerfies.github.io/">Nerfies</a>, which is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This means you are free to borrow the <a
+              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
+            we just ask that you link back to this page in the footer.
+            Please remember to remove the analytics code included in the header of the website which
+            you do not want on your website.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
