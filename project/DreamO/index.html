@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Mutual Self-Attention Control">
+  <meta name="keywords" content="Stable Diffusion">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DreamO: A Unified Framework for Image Customization</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script> -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="./static/js/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+
+<body>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-2 publication-title">DreamO: A Unified Framework for Image Customization </h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=SYQoDk0AAAAJ&hl=zh-CN">Chong Mou</a><sup>1,2</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://scholar.google.com.hk/citations?user=FdHiVvkAAAAJ&hl=zh-CN">Yanze Wu</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="">Wenxu Wu</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="">Zinan Guo</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="">Pengze Zhang</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="">Yufeng Cheng</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="">Yiming Luo</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="">Fei Ding</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="">Shiwen Zhang</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="">Xinghui Li</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="">Mengtian Li</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="">Songtao Zhao</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://jianzhang.tech/">Jian Zhang</a><sup>2</sup>,
+            </span>
+            <span class="author-block">
+              <a href="">Qian He</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="">Xinglong Wu</a><sup>1</sup>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>Intelligent Creation Team, ByteDance</span>
+            <span class="author-block"><sup>2</sup>School of Electronic and Computer Engineering, Shenzhen Graduate School, Peking University</span>
+          </div>
+
+          <div class="column has-text-centered">
+              <span class="link-block">
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://github.com/bytedance/DreamO"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Github</span>
+                  </a>
+              </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="./static/assets/teaser.png" alt="teaser" width="100%">
+      <div class="column has-text-centered">
+        <p>
+          The image customization capability of the proposed DreamO.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Recently, extensive research on image customization (e.g., identity, subject, style, background, etc.) demonstrates strong customization capabilities in large-scale generative models. However, most approaches are designed for specific tasks, restricting their generalizability to combine different types of condition. Developing a unified framework for image customization remains an open challenge. In this paper, we present DreamO, an image customization framework designed to support a wide range of tasks while facilitating seamless integration of multiple conditions. Specifically, DreamO utilizes a diffusion transformer (DiT) framework to uniformly process input of different types. During training, we construct a large-scale training dataset that includes various customization tasks, and we introduce a feature routing constraint to facilitate the precise querying of relevant information from reference images. Additionally, we design a placeholder strategy that associates specific placeholders with conditions at particular positions, enabling control over the placement of conditions in the generated results. Moreover, we employ a progressive training strategy consisting of three stages: an initial stage focused on simple tasks with limited data to establish baseline consistency, a full-scale training stage to comprehensively enhance the customization capabilities, and a final quality alignment stage to correct quality biases introduced by low-quality data. Extensive experiments demonstrate that the proposed DreamO can effectively perform various image customization tasks with high quality and flexibly integrate different types of control conditions.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+  </div>
+</section>
+
+<!-- Results -->
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container"> 
+      <h2 class="title is-8", style="text-align: center;"> Capablities</h2>
+      <div id="results-carousel" class="carousel results-carousel">
+        <div class="item item-steve">
+          <img src="static/images/c1.png">
+        </div>
+        <div class="item item-chair-tp">
+          <img src="static/images/c2.png">
+        </div>
+        <div class="item item-chair-tp">
+          <img src="static/images/c3.png">
+        </div>
+        <div class="item">
+          <img src="static/images/c4.png">
+        </div>
+        <div class="item item-shiba">
+          <img src="static/images/c5.png">
+        </div>
+        <div class="item item-fullbody">
+          <img src="static/images/c6.png">
+        </div>
+        <div class="item item-blueshirt">
+          <img src="static/images/c7.png">
+        </div>
+        <div class="item item-mask">
+          <img src="static/images/c8.png">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Methods section -->
+<Section>
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Methods</h2>
+      
+      <div class="column is-full-width">
+        <div class="content has-text-justified">
+          <img src="static/assets/model.png">
+        </div>
+        <div class="content has-text-justified">
+          <figcaption>Overview of our proposed DreamO, which can uniformly handle commonly used consistency-aware generation control in a DiT framework.</figcaption>
+        </div>
+      </div>
+  </div>
+</Section>
+<!-- Methods section -->
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-8 has-text-centered"> More Results </h2>
+    <!-- <h2 class="title is-6 has-text-centered"> Original Video: Left;       Editing Result: Right </h2> -->
+
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full-width">
+        <figure>
+          <div class="container" style="display: flex; gap: 10px;">
+            <div class="item item-fullbody" style="width:50%;">
+              <img src="static/assets/a3.png" style="width:100%;">
+            </div>
+            <div class="item item-fullbody" style="width:50%;">
+              <img src="static/assets/a4.png" style="width:100%;">
+            </div>
+          </div>
+          <!-- <figcaption>Original video (Left) & Editing results (Right)</figcaption> -->
+        </figure>
+      </div>
+    </div>
+
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full-width">
+        <figure>
+          <div class="container" style="display: flex; gap: 10px;">
+            <div class="item item-fullbody" style="width:50%;">
+              <img src="static/assets/a5.png" style="width:100%;">
+            </div>
+            <div class="item item-fullbody" style="width:50%;">
+              <img src="static/assets/a6.png" style="width:100%;">
+            </div>
+          </div>
+          <!-- <figcaption>Original video (Left) & Editing results (Right)</figcaption> -->
+        </figure>
+      </div>
+    </div>
+
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full-width">
+        <figure>
+          <div class="container" style="display: flex; gap: 10px;">
+            <div class="item item-fullbody" style="width:50%;">
+              <img src="static/assets/a7.png" style="width:100%;">
+            </div>
+            <div class="item item-fullbody" style="width:50%;">
+              <img src="static/assets/a8.png" style="width:100%;">
+            </div>
+          </div>
+          <!-- <figcaption>Original video (Left) & Editing results (Right)</figcaption> -->
+        </figure>
+      </div>
+    </div>
+
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full-width">
+        <figure>
+          <div class="container" style="display: flex; gap: 10px;">
+            <div class="item item-fullbody" style="width:50%;">
+              <img src="static/assets/a9.png" style="width:100%;">
+            </div>
+            <div class="item item-fullbody" style="width:50%;">
+              <img src="static/assets/a10.png" style="width:100%;">
+            </div>
+          </div>
+          <!-- <figcaption>Original video (Left) & Editing results (Right)</figcaption> -->
+        </figure>
+      </div>
+    </div>
+
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full-width">
+        <figure>
+          <div class="container" style="display: flex; gap: 10px;">
+            <div class="item item-fullbody" style="width:50%;">
+              <img src="static/assets/a1.png" style="width:100%;">
+            </div>
+            <div class="item item-fullbody" style="width:50%;">
+              <img src="static/assets/a2.png" style="width:100%;">
+            </div>
+          </div>
+          <!-- <figcaption>Original video (Left) & Editing results (Right)</figcaption> -->
+        </figure>
+      </div>
+    </div>
+
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full-width">
+        <figure>
+          <div class="container" style="display: flex; gap: 10px;">
+            <div class="item item-fullbody" style="width:50%;">
+              <img src="static/assets/a11.png" style="width:100%;">
+            </div>
+            <div class="item item-fullbody" style="width:50%;">
+              <img src="static/assets/a12.png" style="width:100%;">
+            </div>
+          </div>
+          <!-- <figcaption>Original video (Left) & Editing results (Right)</figcaption> -->
+        </figure>
+      </div>
+    </div>
+
+  </div>
+  </div>
+</section>
+<!-- Results -->
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is modified from the <a href="https://nerfies.github.io/">Nerfies</a>, which is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This means you are free to borrow the <a
+              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
+            we just ask that you link back to this page in the footer.
+            Please remember to remove the analytics code included in the header of the website which
+            you do not want on your website.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
