@@ -218,10 +218,67 @@
         <div class="content has-text-justified">
           <figcaption>Overview of our proposed DreamO, which can uniformly handle commonly used consistency-aware generation control in a DiT framework.</figcaption>
         </div>
+        <div class="content has-text-justified">
+          <div class="content-block">
+            <h3>Features</h3>
+            <ul class="feature-list">
+              <li><strong>Trained with only 8 GPUs and ~100k iterations</strong>, using LoRA (<500MB)</li>
+              <li><strong>Fast inference</strong>: ~7s for a 1024px image with FLUX-turbo + CFFG distillation</li>
+              <li><strong>SOTA performance</strong> across all tasks, with particularly strong fidelity. Robust multi-subject handling: our feature routing constraint greatly reduces attribute entanglement, even in challenging same-category cases like two dogs or two people.</li>
+            </ul>
+          
+            <h3>Technical details</h3>
+            <ul class="tech-details">
+              <li>Unified sequence conditioning format for handling diverse inputs in a consistent way</li>
+              <li>Feature routing constraint encourages content fidelity and disentangles control conditions</li>
+              <li>Progressive training in 3 stages:
+                <ol>
+                  <li>Warm-up with simple tasks to establish consistency</li>
+                  <li>Full-task training to enhance customization capability</li>
+                  <li>Quality alignment to mitigate biases from low-quality data</li>
+                </ol>
+              </li>
+            </ul>
+          </div>
+          
+          <style>
+            .content-block {
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              max-width: 800px;
+              margin: 0 auto;
+            }
+            
+            h3 {
+              color: #333;
+              margin-top: 1.5em;
+              margin-bottom: 0.5em;
+            }
+            
+            .feature-list {
+              padding-left: 1.2em;
+            }
+            
+            .feature-list li {
+              margin-bottom: 0.8em;
+            }
+            
+            .tech-details {
+              padding-left: 1.2em;
+            }
+            
+            strong {
+              color: #2c3e50;
+            }
+          </style>
+        </div>
       </div>
   </div>
 </Section>
 <!-- Methods section -->
+
+
+
 
 <!-- Results -->
 <section class="hero is-light is-small">
